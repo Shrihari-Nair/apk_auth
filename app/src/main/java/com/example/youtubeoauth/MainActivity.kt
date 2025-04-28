@@ -11,6 +11,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.google.api.services.youtube.YouTubeScopes
 
 class MainActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -20,10 +21,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Configure Google Sign In
+        // Configure Google Sign In with all necessary YouTube scopes
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
-            .requestScopes(com.google.api.services.youtube.YouTubeScopes.YOUTUBE_READONLY)
+            .requestScopes(YouTubeScopes.YOUTUBE) // Full access to YouTube account
+            .requestScopes(YouTubeScopes.YOUTUBE_FORCE_SSL) // Required for some operations
+            .requestScopes(YouTubeScopes.YOUTUBE_READONLY) // Read access
+            .requestScopes(YouTubeScopes.YOUTUBE_UPLOAD) // For uploading videos
+            .requestScopes(YouTubeScopes.YOUTUBE_CHANNEL_MEMBERSHIPS_CREATOR) // For channel memberships
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
@@ -50,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
             val account = completedTask.getResult(ApiException::class.java)
-            Toast.makeText(this, "Successfully connected to YouTube!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Successfully connected to YouTube with full access!", Toast.LENGTH_SHORT).show()
         } catch (e: ApiException) {
             Toast.makeText(this, "Sign in failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
         }
